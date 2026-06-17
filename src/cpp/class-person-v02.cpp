@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 6-Jan-19  -- class-person-v02.cpp
+// ju -- 6-Jan-19  -- class-person-v02.cpp
 #include <string>
 #include <iostream>
 #include <sstream> 

@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 17-Jun-26 -- sortieren.c
+// ju -- 17-Jun-26 -- sortieren.c
 /* Sortieralgorithmen: Bubble-Sort und Selection-Sort */
 #include <stdio.h>
 

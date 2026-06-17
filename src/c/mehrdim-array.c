@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 17-Jun-26 -- mehrdim-array.c
+// ju -- 17-Jun-26 -- mehrdim-array.c
 /* Mehrdimensionale Arrays: 2D-Matrix anlegen und verarbeiten */
 #include <stdio.h>
 

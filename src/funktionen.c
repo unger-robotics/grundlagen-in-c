@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 5-Jan-19 -- funktionen.c 
+// ju -- 5-Jan-19 -- funktionen.c 
 /* Definition bzw. Implementierung eig. Bibliothek	*/
 
 #include "funktionen.h"

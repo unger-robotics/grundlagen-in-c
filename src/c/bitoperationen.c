@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 17-Jun-26 -- bitoperationen.c
+// ju -- 17-Jun-26 -- bitoperationen.c
 /* Bitweise Operatoren: & | ^ ~ << >> sowie Bitmasken/Flags */
 #include <stdio.h>
 

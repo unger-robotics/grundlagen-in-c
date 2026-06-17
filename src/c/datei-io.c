@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 17-Jun-26 -- datei-io.c
+// ju -- 17-Jun-26 -- datei-io.c
 /* Datei-Ein-/Ausgabe in C: fopen / fprintf / fscanf / fclose */
 #include <stdio.h>
 

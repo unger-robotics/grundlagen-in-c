@@ -26,7 +26,7 @@ make clean           # bin/ entfernen
 ```
 
 - **Quellen werden automatisch erkannt** (`$(wildcard src/c/*.c)` / `src/cpp/*.cpp`) — es gibt **keine** von Hand zu pflegende `TARGETS`-Liste mehr. Neue Datei in `src/c/` oder `src/cpp/` ablegen genügt; der Binärname ist der Dateiname ohne Endung.
-- C: `cc -std=c17`, C++: `c++ -std=c++20` (`cc`/`c++` sind auf macOS Apple Clang; per `CC`/`CXX` überschreibbar).
+- C: `cc -std=c23`, C++: `c++ -std=c++23` (`cc`/`c++` sind auf macOS Apple Clang; per `CC`/`CXX` überschreibbar).
 - Das Makefile ermittelt das macOS-SDK via `xcrun --show-sdk-path` und gibt es als `-isysroot` mit — nötig, falls `CC`/`CXX` auf das rohe `clang`-Binary zeigen (findet sonst `stdio.h` nicht).
 - **Nur C-Programme** linken `src/funktionen.c` mit; C++-Programme sind eigenständig.
 - Es gibt **kein Testframework**. "Tests" sind manuell: `src/c/test-bibliothek.c` ruft Bibliotheksfunktionen auf, und manche Programme prüfen sich selbst (z. B. `src/cpp/class-person-v02.cpp` vergleicht die Ausgabe mit einem Erwartungs-String und gibt bei Abweichung `return 1`, sonst `ok` + Exit 0). Ein Programm "testen" heißt: bauen, ausführen, Exit-Code/Ausgabe prüfen.
@@ -41,7 +41,7 @@ Einige Beispiele schreiben Dateien ins aktuelle Verzeichnis: `class-person-v02.c
 
 ## Stil-Konventionen (durchgängig im Repo)
 
-- Kopfzeile pro Datei: `// ju -- https://bw1.eu -- <Datum> -- <dateiname>`.
+- Kopfzeile pro Datei: `// ju -- <Datum> -- <dateiname>`.
 - Einrückung 2 Leerzeichen (einige ältere Bestandsdateien nutzen Tabs — beim Bearbeiten den Stil der jeweiligen Datei beibehalten), Codierung UTF-8, Zeilenende LF.
 - Kommentare und Bezeichner auf Deutsch. Umlaute im **Code/Kommentaren** sind ok; in neuen Beispielen werden sie der Portabilität halber teils als `ae/oe/ue` geschrieben — am Stil der umgebenden Datei orientieren. Umlaute niemals in bestehenden Texten durch ASCII ersetzen.
 - Build muss mit `-Wall -Wextra` warnungsfrei bleiben.

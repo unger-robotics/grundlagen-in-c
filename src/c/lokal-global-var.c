@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 26-Dez-18  -- lokal-global-var.c 
+// ju -- 26-Dez-18  -- lokal-global-var.c 
 #include <stdio.h>
 //#include "funktionen.h" // eig. Bibliothek
 int var1 = 0;// global

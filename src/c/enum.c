@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 17-Jun-26 -- enum.c
+// ju -- 17-Jun-26 -- enum.c
 /* Aufzaehlungstypen (enum): benannte ganzzahlige Konstanten */
 #include <stdio.h>
 

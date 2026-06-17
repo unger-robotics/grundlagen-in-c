@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 6-Jan-19  -- zeiger.c 
+// ju -- 6-Jan-19  -- zeiger.c 
 #include <stdio.h>
 //#include "funktionen.h" // eig. Bibliothek
 int main(void){

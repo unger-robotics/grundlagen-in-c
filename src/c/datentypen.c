@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 26-Dez-18  -- datentypen.c 
+// ju -- 26-Dez-18  -- datentypen.c 
 #include <stdio.h>
 #include <limits.h>
 #include <math.h>

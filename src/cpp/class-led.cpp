@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 6-Jan-19  -- class-led.cpp
+// ju -- 6-Jan-19  -- class-led.cpp
 #include <iostream>
 #include <iomanip>
 #include <cstdio>

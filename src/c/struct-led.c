@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 6-Jan-19  -- struct-led.c 
+// ju -- 6-Jan-19  -- struct-led.c 
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>

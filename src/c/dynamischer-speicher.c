@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 17-Jun-26 -- dynamischer-speicher.c
+// ju -- 17-Jun-26 -- dynamischer-speicher.c
 /* Dynamische Speicherverwaltung: malloc / realloc / free */
 #include <stdio.h>
 #include <stdlib.h>

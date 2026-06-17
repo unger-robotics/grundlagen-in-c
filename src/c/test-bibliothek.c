@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 26-Dez-18  -- test-bibliothek.c 
+// ju -- 26-Dez-18  -- test-bibliothek.c 
 #include <stdio.h>
 #include "funktionen.h" // eig. Bibliothek
 int main(void){

@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 17-Jun-26 -- union-typedef.c
+// ju -- 17-Jun-26 -- union-typedef.c
 /* union: ein Speicherbereich, mehrere Interpretationen
    typedef: eigene Typnamen vergeben                      */
 #include <stdio.h>

@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 17-Jun-26 -- funktionszeiger.c
+// ju -- 17-Jun-26 -- funktionszeiger.c
 /* Funktionszeiger und Callbacks */
 #include <stdio.h>
 

@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 17-Jun-26 -- suchen.c
+// ju -- 17-Jun-26 -- suchen.c
 /* Suchverfahren: lineare Suche und binaere Suche */
 #include <stdio.h>
 

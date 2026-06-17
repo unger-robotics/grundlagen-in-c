@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 26-Dez-18  -- array.c 
+// ju -- 26-Dez-18  -- array.c 
 #include <stdio.h>
 //#include "funktionen.h" // eig. Bibliothek
 int main(void){

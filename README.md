@@ -61,7 +61,7 @@ Initialisierungsliste, Ausgabe nach Bildschirm/Datei/String (mit Selbsttest).
 
 ## Standards
 
-C wird mit `-std=c17`, C++ mit `-std=c++20` übersetzt (im `Makefile` anpassbar).
+C wird mit `-std=c23`, C++ mit `-std=c++23` übersetzt (im `Makefile` anpassbar).
 
 ## Git / Repository
 

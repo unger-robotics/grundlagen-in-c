@@ -1,4 +1,4 @@
-# ju -- https://bw1.eu -- 17-Jun-26 -- Makefile
+# ju -- 17-Jun-26 -- Makefile
 # macOS (Apple Clang) -- Build der C/C++-Grundlagenbeispiele
 #
 # Verwendung:
@@ -12,8 +12,8 @@
 CC       ?= cc          # Apple Clang (gcc ist hierauf nur ein Alias)
 CXX      ?= c++         # Apple Clang++ (g++ ist hierauf nur ein Alias)
 WARN     := -Wall -Wextra -Wno-missing-field-initializers
-CFLAGS   := -std=c17   $(WARN) -g -O0
-CXXFLAGS := -std=c++20 $(WARN) -g -O0
+CFLAGS   := -std=c23   $(WARN) -g -O0
+CXXFLAGS := -std=c++23 $(WARN) -g -O0
 CPPFLAGS := -Iinclude
 LIB      := src/funktionen.c
 

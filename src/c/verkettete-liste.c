@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 17-Jun-26 -- verkettete-liste.c
+// ju -- 17-Jun-26 -- verkettete-liste.c
 /* Einfach verkettete Liste mit dynamischem Speicher (malloc/free) */
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,4 +1,4 @@
-// ju -- https://bw1.eu -- 5-Jan-19 -- funktionen.h 
+// ju -- 5-Jan-19 -- funktionen.h 
 /* Deklaration eig. Bibliothek	*/
 
 #ifndef BIB_H // Include-Guard
