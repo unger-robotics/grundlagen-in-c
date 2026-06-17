@@ -94,6 +94,28 @@ Jedes Programm ist eigenständig und behandelt genau ein Thema. Mit
 
 C wird mit `-std=c23`, C++ mit `-std=c++23` übersetzt (im `Makefile` anpassbar).
 
+## CI / Automatische Prüfungen
+
+Bei jedem Push und Pull Request auf `main` läuft der Workflow
+[`.github/workflows/build.yml`](.github/workflows/build.yml) auf einem **macOS**-Runner
+(Apple Clang). Den Status zeigt das Badge oben. Geprüft werden zwei Dinge:
+
+1. **Warnungsfreier Build** – alle Beispiele werden mit `-Werror` übersetzt; jede
+   Compiler-Warnung (und natürlich jeder Syntax-/Typfehler) lässt die CI fehlschlagen.
+2. **Ausführung** – jedes gebaute Programm wird gestartet; ein Exit-Code ≠ 0 (Absturz
+   oder fehlgeschlagener Selbsttest, z. B. `class-person-v02`) lässt die CI fehlschlagen.
+
+Lokal identisch nachstellbar:
+
+```sh
+make EXTRA_WARN=-Werror                                          # warnungsfrei bauen (wie in der CI)
+for p in bin/*; do [ -f "$p" ] && [ -x "$p" ] && "$p" </dev/null; done   # alle ausführen
+```
+
+Geprüft werden damit Übersetzbarkeit, Warnungsfreiheit und Absturzfreiheit. **Logik-**
+**fehler** in Programmen *ohne* Selbsttest erkennt die CI nicht – dafür müsste ein Programm
+seine Ausgabe gegen einen Erwartungswert prüfen (wie `class-person-v02`).
+
 ## Git / Repository
 
 ```sh
