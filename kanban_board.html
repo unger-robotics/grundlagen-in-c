@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<!-- ju -- 17-Jun-26 -- kanban_board.html -->
+<!--
+  Lern-Tracker fuer das Repo "Grundlagen in C".
+  Eigenstaendige Datei: eingebettetes CSS/JS, keine externen Abhaengigkeiten,
+  kein Build. Im Browser oeffnen (z. B. `open kanban_board.html`).
+  Vier Tabs: Kanban-Board, SMART-Ziele, ToDo-Liste, Roadmap.
+  Status bleibt im localStorage erhalten; PDF-Export via Druckdialog.
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lern-Kanban — Grundlagen in C</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --ink: #1f2933;
+      --muted: #6b7785;
+      --line: #d7dee5;
+      --accent: #2563eb;
+      --accent-ink: #ffffff;
+      --ok: #15803d;
+      --ok-bg: #dcfce7;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    header.app {
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      padding: 14px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .app-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 14px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .app-top h1 {
+      font-size: 1.15rem;
+      margin: 0;
+      flex: 1 1 auto;
+    }
+    .app-top h1 small { color: var(--muted); font-weight: 400; font-size: 0.8rem; }
+
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 8px 12px;
+      min-height: 40px;
+    }
+    button:hover { border-color: var(--accent); }
+    button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+    button.danger { color: #b91c1c; border-color: #f2c2c2; }
+    button.ghost { background: transparent; }
+
+    /* ---- Tabs ---- */
+    nav.tabs {
+      display: flex;
+      gap: 4px;
+      max-width: 1280px;
+      margin: 12px auto 0;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    nav.tabs button {
+      border: none;
+      border-bottom: 3px solid transparent;
+      border-radius: 0;
+      background: transparent;
+      color: var(--muted);
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    nav.tabs button[aria-selected="true"] {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    main { max-width: 1280px; margin: 0 auto; padding: 16px; }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .panel-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .panel-head h2 { margin: 0; font-size: 1.05rem; flex: 1 1 auto; }
+    .panel-head .controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+    select {
+      font: inherit;
+      padding: 7px 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      min-height: 40px;
+    }
+
+    /* ---- Fortschrittsbalken ---- */
+    .progress {
+      max-width: 1280px;
+      margin: 12px auto 0;
+    }
+    .progress .bar {
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress .bar > span {
+      display: block;
+      height: 100%;
+      background: var(--ok);
+      width: 0;
+      transition: width 0.25s ease;
+    }
+    .progress .label { font-size: 0.82rem; color: var(--muted); margin-top: 4px; }
+
+    /* ---- Kanban ---- */
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+    .column {
+      background: #eef2f6;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 8px;
+      min-height: 80px;
+    }
+    .column.drop-hover { outline: 2px dashed var(--accent); outline-offset: -2px; }
+    .column h3 {
+      margin: 4px 6px 8px;
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+    }
+    .column h3 .count {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0 8px;
+      font-size: 0.78rem;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--grp, var(--muted));
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      box-shadow: var(--shadow);
+      cursor: grab;
+    }
+    .card:active { cursor: grabbing; }
+    .card .card-top {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .card .fname { font-weight: 600; font-size: 0.9rem; word-break: break-word; }
+    .card .thema { color: var(--muted); font-size: 0.82rem; margin: 4px 0; }
+    .card .notiz {
+      font-size: 0.78rem;
+      color: var(--ink);
+      background: #f8fafc;
+      border-radius: 6px;
+      padding: 4px 6px;
+      margin-top: 4px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .card .card-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      gap: 6px;
+    }
+    .card .move { display: flex; gap: 4px; }
+    .card .move button {
+      padding: 2px 8px;
+      min-height: 28px;
+      font-size: 0.85rem;
+      line-height: 1;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      letter-spacing: 0.02em;
+    }
+    .badge.lang-C { background: #dbeafe; color: #1e40af; }
+    .badge.lang-Cpp { background: #ede9fe; color: #5b21b6; }
+    .badge.diff { background: #f1f5f9; color: var(--muted); }
+    .badge.test { background: #fef3c7; color: #92400e; }
+
+    /* ---- SMART ---- */
+    .smart-grid { display: grid; gap: 12px; }
+    .smart-field {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      box-shadow: var(--shadow);
+    }
+    .smart-field label { font-weight: 700; display: block; margin-bottom: 2px; }
+    .smart-field .hint { color: var(--muted); font-size: 0.82rem; margin-bottom: 8px; }
+    .smart-field .letter {
+      display: inline-flex;
+      width: 26px; height: 26px;
+      align-items: center; justify-content: center;
+      background: var(--accent); color: #fff;
+      border-radius: 6px; font-weight: 800; margin-right: 8px;
+    }
+    textarea {
+      font: inherit;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    /* ---- ToDo ---- */
+    .todo-add { display: flex; gap: 8px; margin-bottom: 12px; }
+    .todo-add input {
+      font: inherit; flex: 1 1 auto;
+      border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; min-height: 40px;
+    }
+    ul.todos { list-style: none; padding: 0; margin: 0; }
+    ul.todos li {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--panel); border: 1px solid var(--line);
+      border-radius: 8px; padding: 8px 10px; margin-bottom: 8px;
+      box-shadow: var(--shadow);
+    }
+    ul.todos li input[type="checkbox"] { width: 20px; height: 20px; flex: none; }
+    ul.todos li .txt { flex: 1 1 auto; word-break: break-word; }
+    ul.todos li.done .txt { text-decoration: line-through; color: var(--muted); }
+
+    /* ---- Roadmap ---- */
+    .phase {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-left: 6px solid var(--grp, var(--accent));
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+    }
+    .phase h3 { margin: 0 0 4px; display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+    .phase h3 .num {
+      background: var(--grp, var(--accent)); color: #fff;
+      border-radius: 6px; padding: 1px 8px; font-size: 0.85rem;
+    }
+    .phase .mini-bar { height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin: 6px 0 8px; }
+    .phase .mini-bar > span { display: block; height: 100%; background: var(--ok); }
+    .phase ul { margin: 0; padding-left: 18px; }
+    .phase li { font-size: 0.88rem; }
+    .phase li.erledigt { color: var(--ok); }
+    .phase li.erledigt::marker { content: "✓ "; }
+
+    /* ---- Modal ---- */
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      z-index: 50;
+      align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: var(--panel);
+      border-radius: var(--radius);
+      max-width: 520px; width: 100%;
+      max-height: 90vh; overflow: auto;
+      padding: 18px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+    .modal h2 { margin-top: 0; }
+    .modal .row { margin-bottom: 12px; }
+    .modal label { font-weight: 600; display: block; margin-bottom: 4px; }
+    .modal input[type="text"], .modal select, .modal textarea {
+      width: 100%; font: inherit; border: 1px solid var(--line);
+      border-radius: 8px; padding: 8px; min-height: 40px;
+    }
+    .modal .cmd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      background: #0f172a; color: #e2e8f0;
+      padding: 8px 10px; border-radius: 8px; font-size: 0.82rem;
+      word-break: break-all;
+    }
+    .modal .actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+
+    .hidden { display: none !important; }
+
+    /* ---- Responsiv ---- */
+    @media (max-width: 900px) {
+      .board { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .board { grid-template-columns: 1fr; }
+      .app-top h1 { flex-basis: 100%; }
+      .card { cursor: default; }
+    }
+
+    /* ---- Druck / PDF ---- */
+    @media print {
+      header.app, nav.tabs, .toolbar, .panel-head .controls,
+      .card .move, .todo-add, .overlay, .filterbar { display: none !important; }
+      body { background: #fff; }
+      main { max-width: none; }
+      /* Beim Drucken ALLE Bereiche zeigen, nicht nur den aktiven Tab */
+      .panel { display: block !important; page-break-before: always; }
+      .panel:first-of-type { page-break-before: avoid; }
+      .panel h2 { border-bottom: 2px solid #000; padding-bottom: 4px; }
+      .board { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+      .card, .phase, .smart-field, ul.todos li {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+      .progress { display: block; }
+      a[href]::after { content: ""; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app">
+    <div class="app-top">
+      <h1>Lern-Kanban <small>· Grundlagen in C</small></h1>
+      <div class="toolbar">
+        <button id="btn-pdf" class="primary" title="Druckdialog oeffnen, dort 'Als PDF sichern'">⭳ Als PDF exportieren</button>
+        <button id="btn-reset" class="danger ghost" title="Alle Daten auf den vorbefuellten Stand zuruecksetzen">↺ Zuruecksetzen</button>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="kanban" aria-selected="true">Kanban</button>
+      <button role="tab" data-tab="smart" aria-selected="false">SMART-Ziele</button>
+      <button role="tab" data-tab="todo" aria-selected="false">ToDo-Liste</button>
+      <button role="tab" data-tab="roadmap" aria-selected="false">Roadmap</button>
+    </nav>
+    <div class="progress">
+      <div class="bar"><span id="prog-fill"></span></div>
+      <div class="label" id="prog-label">0 von 0 erledigt</div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== Tab: Kanban ===== -->
+    <section class="panel active" id="panel-kanban">
+      <div class="panel-head">
+        <h2>Kanban-Board — Codedateien durcharbeiten</h2>
+        <div class="controls filterbar">
+          <label class="hidden" for="f-lang">Sprache</label>
+          <select id="f-lang" title="Nach Sprache filtern">
+            <option value="">Alle Sprachen</option>
+            <option value="C">nur C</option>
+            <option value="C++">nur C++</option>
+          </select>
+          <select id="f-group" title="Nach Themengruppe filtern">
+            <option value="">Alle Gruppen</option>
+          </select>
+          <button id="btn-add" class="primary">+ Neue Karte</button>
+        </div>
+      </div>
+      <div class="board" id="board"></div>
+    </section>
+
+    <!-- ===== Tab: SMART ===== -->
+    <section class="panel" id="panel-smart">
+      <div class="panel-head">
+        <h2>SMART-Ziele für dein Lernvorhaben</h2>
+      </div>
+      <div class="smart-grid" id="smart-grid"></div>
+    </section>
+
+    <!-- ===== Tab: ToDo ===== -->
+    <section class="panel" id="panel-todo">
+      <div class="panel-head">
+        <h2>ToDo-Liste <span class="badge diff" id="todo-count"></span></h2>
+      </div>
+      <div class="todo-add">
+        <input type="text" id="todo-input" placeholder="Neue Aufgabe … (Enter)" />
+        <button class="primary" id="todo-add-btn">+ Hinzufügen</button>
+      </div>
+      <ul class="todos" id="todo-list"></ul>
+    </section>
+
+    <!-- ===== Tab: Roadmap ===== -->
+    <section class="panel" id="panel-roadmap">
+      <div class="panel-head">
+        <h2>Roadmap — empfohlene Lernreihenfolge</h2>
+      </div>
+      <div id="roadmap"></div>
+    </section>
+  </main>
+
+  <!-- ===== Modal: Karte bearbeiten ===== -->
+  <div class="overlay" id="overlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title">Karte bearbeiten</h2>
+      <div class="row">
+        <label for="m-datei">Datei / Titel</label>
+        <input type="text" id="m-datei" placeholder="z. B. src/c/zeiger.c" />
+      </div>
+      <div class="row">
+        <label for="m-thema">Thema</label>
+        <input type="text" id="m-thema" placeholder="Worum geht es?" />
+      </div>
+      <div class="row">
+        <label for="m-lang">Sprache</label>
+        <select id="m-lang">
+          <option value="C">C</option>
+          <option value="C++">C++</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="m-group">Themengruppe</label>
+        <select id="m-group"></select>
+      </div>
+      <div class="row">
+        <label for="m-diff">Schwierigkeit</label>
+        <select id="m-diff">
+          <option value="Anfänger">Anfänger</option>
+          <option value="Mittel">Mittel</option>
+          <option value="Fortgeschritten">Fortgeschritten</option>
+        </select>
+      </div>
+      <div class="row">
+        <label><input type="checkbox" id="m-test" style="width:auto;min-height:auto" /> hat einen Selbsttest (⚑)</label>
+      </div>
+      <div class="row">
+        <label for="m-notiz">Notiz</label>
+        <textarea id="m-notiz" placeholder="Eigene Notizen, offene Fragen …"></textarea>
+      </div>
+      <div class="row">
+        <label>Make-Befehl</label>
+        <div class="cmd" id="m-cmd">—</div>
+      </div>
+      <div class="actions">
+        <button class="danger" id="m-delete">Löschen</button>
+        <div style="display:flex;gap:8px;">
+          <button class="ghost" id="m-cancel">Abbrechen</button>
+          <button class="primary" id="m-save">Speichern</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    var STORAGE_KEY = "kanban_grundlagen_in_c";
+    var SCHEMA_VERSION = 1;
+
+    // Spalten (Status) in fester Reihenfolge.
+    var STATI = [
+      { key: "backlog", titel: "Backlog (zu lernen)" },
+      { key: "in-arbeit", titel: "In Arbeit" },
+      { key: "test", titel: "Selbsttest / Prüfen" },
+      { key: "erledigt", titel: "Erledigt" }
+    ];
+
+    // Themengruppen in Lernreihenfolge (auch Roadmap-Reihenfolge) + Farbe.
+    var GRUPPEN = [
+      { key: "grundlagen", name: "Grundlagen", farbe: "#2563eb" },
+      { key: "speicher", name: "Zeiger & Speicher", farbe: "#0891b2" },
+      { key: "strukturen", name: "Strukturierte Typen", farbe: "#7c3aed" },
+      { key: "c-fortg", name: "Fortgeschrittenes C", farbe: "#db2777" },
+      { key: "algorithmen", name: "Algorithmen & Datenstrukturen", farbe: "#ea580c" },
+      { key: "cpp-basis", name: "C++ Grundlagen", farbe: "#16a34a" },
+      { key: "cpp-fortg", name: "C++ Fortgeschritten", farbe: "#0d9488" },
+      { key: "tests", name: "Tests & Validierung", farbe: "#65748b" }
+    ];
+
+    function grpFarbe(key) {
+      for (var i = 0; i < GRUPPEN.length; i++) if (GRUPPEN[i].key === key) return GRUPPEN[i].farbe;
+      return "#65748b";
+    }
+    function grpName(key) {
+      for (var i = 0; i < GRUPPEN.length; i++) if (GRUPPEN[i].key === key) return GRUPPEN[i].name;
+      return key;
+    }
+
+    // Hilfsfunktion: Karte definieren.
+    function k(datei, sprache, gruppe, schwierigkeit, hatTest, thema) {
+      return {
+        id: datei, datei: datei, sprache: sprache, gruppe: gruppe,
+        schwierigkeit: schwierigkeit, hatTest: !!hatTest, thema: thema,
+        status: "backlog", notiz: ""
+      };
+    }
+
+    // Vorbefuellte Daten (31 Codedateien des Repos + SMART-Beispiel + Start-ToDos).
+    function makeSeed() {
+      return {
+        schemaVersion: SCHEMA_VERSION,
+        cards: [
+          // --- Grundlagen ---
+          k("src/c/hallo-in-c.c", "C", "grundlagen", "Anfänger", false, "Erstes Programm, Konsolenausgabe mit printf"),
+          k("src/c/halloC-v02.c", "C", "grundlagen", "Anfänger", false, "Hallo-Welt-Variante mit Variablen"),
+          k("src/c/datentypen.c", "C", "grundlagen", "Anfänger", false, "Datentypen int/char/float und ihre Wertebereiche"),
+          k("src/c/schleifen.c", "C", "grundlagen", "Anfänger", false, "for, while, do-while, break, continue"),
+          k("src/c/lokal-global-var.c", "C", "grundlagen", "Anfänger", false, "Gueltigkeitsbereich: lokale vs. globale Variablen"),
+          k("src/c/dummy.c", "C", "grundlagen", "Anfänger", false, "Minimaler Platzhalter / Geruest"),
+          // --- Zeiger & Speicher ---
+          k("src/c/zeiger.c", "C", "speicher", "Mittel", false, "Zeiger: Adressen (&), Dereferenzierung (*), Zeigerarithmetik"),
+          k("src/c/array.c", "C", "speicher", "Anfänger", false, "Eindimensionale Arrays, Initialisierung, Indizierung"),
+          k("src/c/string.c", "C", "speicher", "Anfänger", false, "Strings als char-Arrays, Null-Terminierung"),
+          k("src/c/string-funktionen.c", "C", "speicher", "Mittel", false, "String-Manipulation mit <string.h> (strlen, strcpy, strcat)"),
+          k("src/c/mehrdim-array.c", "C", "speicher", "Mittel", false, "Mehrdimensionale Arrays (Matrizen 2D/3D)"),
+          k("src/c/dynamischer-speicher.c", "C", "speicher", "Fortgeschritten", false, "Heap: malloc, realloc, free"),
+          // --- Strukturierte Typen ---
+          k("src/c/struct-led.c", "C", "strukturen", "Mittel", false, "Strukturen (struct): zusammengesetzte Datentypen"),
+          k("src/c/enum.c", "C", "strukturen", "Mittel", false, "Aufzaehlungstypen (enum) mit benannten Konstanten"),
+          k("src/c/union-typedef.c", "C", "strukturen", "Fortgeschritten", false, "union (ueberlagerter Speicher) + typedef (Typaliase)"),
+          // --- Fortgeschrittenes C ---
+          k("src/c/funktionszeiger.c", "C", "c-fortg", "Fortgeschritten", false, "Funktionszeiger und Callbacks"),
+          k("src/c/bitoperationen.c", "C", "c-fortg", "Fortgeschritten", false, "Bitweise Operationen, Bitmasken"),
+          k("src/c/datei-io.c", "C", "c-fortg", "Fortgeschritten", false, "Datei-Ein-/Ausgabe: fopen, fprintf, fscanf, fclose"),
+          k("src/c/rekursion.c", "C", "c-fortg", "Fortgeschritten", false, "Rekursion: Funktion ruft sich selbst auf"),
+          // --- Algorithmen ---
+          k("src/c/verkettete-liste.c", "C", "algorithmen", "Fortgeschritten", false, "Einfach verkettete Liste mit dynamischem Speicher"),
+          k("src/c/sortieren.c", "C", "algorithmen", "Fortgeschritten", false, "Sortieralgorithmen: Bubble-Sort, Selection-Sort"),
+          k("src/c/suchen.c", "C", "algorithmen", "Fortgeschritten", false, "Suchverfahren: lineare und binaere Suche"),
+          // --- Tests ---
+          k("src/c/test-bibliothek.c", "C", "tests", "Mittel", true, "Selbsttest: Bibliothekslogik (fac, quersumme, Potenzen)"),
+          k("src/c/test-speicher.c", "C", "tests", "Mittel", true, "Selbsttest: malloc/realloc/free, Liste, Puffer (gut unter Sanitizer)"),
+          // --- C++ Grundlagen ---
+          k("src/cpp/hallo-in-c++.cpp", "C++", "cpp-basis", "Anfänger", false, "Erstes C++-Programm mit std::cout"),
+          k("src/cpp/halloC++-v02.cpp", "C++", "cpp-basis", "Anfänger", false, "Hallo-Welt-Variante mit std::cout und <cmath>"),
+          k("src/cpp/class-person.cpp", "C++", "cpp-basis", "Mittel", false, "Klasse mit Methoden und Konstruktor"),
+          k("src/cpp/class-led.cpp", "C++", "cpp-basis", "Mittel", false, "Klasse mit privaten/oeffentlichen Membern (Kapselung)"),
+          // --- C++ Fortgeschritten ---
+          k("src/cpp/class-person-v02.cpp", "C++", "cpp-fortg", "Fortgeschritten", true, "Initialisierungsliste, polymorphe Ausgabe; prueft sich selbst"),
+          k("src/cpp/stl-vector.cpp", "C++", "cpp-fortg", "Fortgeschritten", false, "std::vector + <algorithm> (sort, find), range-based for"),
+          k("src/cpp/vererbung.cpp", "C++", "cpp-fortg", "Fortgeschritten", false, "Vererbung & Polymorphie: virtuelle Funktionen, override")
+        ],
+        smart: {
+          specific: "Ich arbeite alle 31 Programme des Repos durch: bauen, ausfuehren, den Code Zeile fuer Zeile verstehen.",
+          measurable: "Pro Datei eine Karte in 'Erledigt'; beide Selbsttests laufen gruen (make test).",
+          achievable: "Etwa 3 Programme pro Lernsitzung, entlang der Roadmap-Reihenfolge.",
+          relevant: "Solides C-/C++-Fundament fuer eigene Projekte und das Verstaendnis der CI.",
+          timebound: "Abschluss aller Karten bis in vier Wochen (Zieldatum hier eintragen)."
+        },
+        todos: [
+          { id: "t-build", text: "make lokal lauffaehig machen (warnungsfrei mit -Werror)", erledigt: false },
+          { id: "t-readme", text: "README.md lesen und Projektstruktur verstehen", erledigt: false },
+          { id: "t-test", text: "make test ausfuehren — beide Selbsttests gruen", erledigt: false },
+          { id: "t-san", text: "make clean && make SANITIZE=address,undefined test laufen lassen", erledigt: false },
+          { id: "t-ci", text: ".github/workflows/build.yml verstehen (Format + Build + Sanitizer)", erledigt: false }
+        ]
+      };
+    }
+
+    // ---- Zustand laden / speichern ----
+    var state = load();
+
+    function load() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (parsed && parsed.cards) return parsed;
+        }
+      } catch (e) { /* faellt unten auf SEED zurueck */ }
+      return makeSeed();
+    }
+
+    function save() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.warn("Speichern fehlgeschlagen:", e);
+      }
+    }
+
+    // ---- DOM-Helfer ----
+    function el(tag, attrs, children) {
+      var node = document.createElement(tag);
+      if (attrs) {
+        for (var key in attrs) {
+          if (key === "class") node.className = attrs[key];
+          else if (key === "text") node.textContent = attrs[key];
+          else if (key === "html") node.innerHTML = attrs[key];
+          else if (key.indexOf("on") === 0 && typeof attrs[key] === "function") {
+            node.addEventListener(key.slice(2), attrs[key]);
+          } else if (attrs[key] !== null && attrs[key] !== undefined) {
+            node.setAttribute(key, attrs[key]);
+          }
+        }
+      }
+      if (children) {
+        for (var i = 0; i < children.length; i++) {
+          var c = children[i];
+          if (c == null) continue;
+          node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+        }
+      }
+      return node;
+    }
+
+    function basisName(datei) {
+      var b = datei.split("/").pop();
+      return b.replace(/\.(c|cpp)$/i, "");
+    }
+
+    function makeBefehl(card) {
+      if (card.gruppe === "tests") return "make test";
+      return "make run-" + basisName(card.datei) + "    # bzw. make debug-" + basisName(card.datei);
+    }
+
+    // ---- Rendering ----
+    function render() {
+      renderProgress();
+      renderBoard();
+      renderRoadmap();
+      // SMART und ToDo werden einmalig aufgebaut; hier nur Zaehler/Status frisch halten:
+      renderTodoCount();
+    }
+
+    function visibleCards() {
+      var fl = document.getElementById("f-lang").value;
+      var fg = document.getElementById("f-group").value;
+      return state.cards.filter(function (c) {
+        if (fl && c.sprache !== fl) return false;
+        if (fg && c.gruppe !== fg) return false;
+        return true;
+      });
+    }
+
+    function renderProgress() {
+      var total = state.cards.length;
+      var done = state.cards.filter(function (c) { return c.status === "erledigt"; }).length;
+      var pct = total ? Math.round((done / total) * 100) : 0;
+      document.getElementById("prog-fill").style.width = pct + "%";
+      document.getElementById("prog-label").textContent =
+        done + " von " + total + " erledigt (" + pct + " %)";
+    }
+
+    function renderBoard() {
+      var board = document.getElementById("board");
+      board.innerHTML = "";
+      var cards = visibleCards();
+
+      STATI.forEach(function (st) {
+        var inCol = cards.filter(function (c) { return c.status === st.key; });
+        var col = el("div", { "class": "column", "data-status": st.key });
+
+        col.appendChild(el("h3", null, [
+          st.titel,
+          el("span", { "class": "count", text: String(inCol.length) })
+        ]));
+
+        inCol.forEach(function (c) { col.appendChild(cardNode(c)); });
+
+        // Drop-Ziel
+        col.addEventListener("dragover", function (ev) {
+          ev.preventDefault();
+          col.classList.add("drop-hover");
+        });
+        col.addEventListener("dragleave", function () { col.classList.remove("drop-hover"); });
+        col.addEventListener("drop", function (ev) {
+          ev.preventDefault();
+          col.classList.remove("drop-hover");
+          var id = ev.dataTransfer.getData("text/plain");
+          setStatus(id, st.key);
+        });
+
+        board.appendChild(col);
+      });
+    }
+
+    function cardNode(c) {
+      var idx = STATI.map(function (s) { return s.key; }).indexOf(c.status);
+
+      var top = el("div", { "class": "card-top" }, [
+        el("span", { "class": "badge lang-" + (c.sprache === "C++" ? "Cpp" : "C"), text: c.sprache }),
+        c.hatTest ? el("span", { "class": "badge test", title: "hat einen Selbsttest", text: "⚑ Test" }) : null
+      ]);
+
+      var moveLeft = el("button", {
+        title: "nach links", text: "◀",
+        onclick: function (ev) { ev.stopPropagation(); shiftStatus(c.id, -1); }
+      });
+      if (idx <= 0) moveLeft.disabled = true;
+      var moveRight = el("button", {
+        title: "nach rechts", text: "▶",
+        onclick: function (ev) { ev.stopPropagation(); shiftStatus(c.id, 1); }
+      });
+      if (idx >= STATI.length - 1) moveRight.disabled = true;
+
+      var card = el("div", {
+        "class": "card",
+        draggable: "true",
+        title: "Klicken zum Bearbeiten"
+      }, [
+        top,
+        el("div", { "class": "fname", text: basisName(c.datei) }),
+        el("div", { "class": "thema", text: c.thema || "" }),
+        c.notiz ? el("div", { "class": "notiz", text: c.notiz }) : null,
+        el("div", { "class": "card-foot" }, [
+          el("span", { "class": "badge diff", text: c.schwierigkeit }),
+          el("span", { "class": "move" }, [moveLeft, moveRight])
+        ])
+      ]);
+      card.style.setProperty("--grp", grpFarbe(c.gruppe));
+
+      card.addEventListener("dragstart", function (ev) {
+        ev.dataTransfer.setData("text/plain", c.id);
+        ev.dataTransfer.effectAllowed = "move";
+      });
+      card.addEventListener("click", function () { openModal(c.id); });
+
+      return card;
+    }
+
+    function findCard(id) {
+      for (var i = 0; i < state.cards.length; i++) if (state.cards[i].id === id) return state.cards[i];
+      return null;
+    }
+
+    function setStatus(id, status) {
+      var c = findCard(id);
+      if (!c) return;
+      c.status = status;
+      save();
+      render();
+    }
+
+    function shiftStatus(id, delta) {
+      var c = findCard(id);
+      if (!c) return;
+      var idx = STATI.map(function (s) { return s.key; }).indexOf(c.status);
+      idx = Math.max(0, Math.min(STATI.length - 1, idx + delta));
+      c.status = STATI[idx].key;
+      save();
+      render();
+    }
+
+    // ---- SMART ----
+    var SMART_FELDER = [
+      { key: "specific", letter: "S", label: "Spezifisch", hint: "Was genau willst du erreichen? Konkret formuliert." },
+      { key: "measurable", letter: "M", label: "Messbar", hint: "Woran erkennst du den Fortschritt / das Ziel?" },
+      { key: "achievable", letter: "A", label: "Attraktiv & erreichbar", hint: "Realistisch und motivierend?" },
+      { key: "relevant", letter: "R", label: "Relevant", hint: "Warum lohnt sich das Ziel fuer dich?" },
+      { key: "timebound", letter: "T", label: "Terminiert", hint: "Bis wann? Festes Zieldatum." }
+    ];
+
+    function buildSmart() {
+      var grid = document.getElementById("smart-grid");
+      grid.innerHTML = "";
+      SMART_FELDER.forEach(function (f) {
+        var ta = el("textarea", { id: "smart-" + f.key });
+        ta.value = state.smart[f.key] || "";
+        ta.addEventListener("input", debounce(function () {
+          state.smart[f.key] = ta.value;
+          save();
+        }, 300));
+        grid.appendChild(el("div", { "class": "smart-field" }, [
+          el("label", { "for": "smart-" + f.key }, [
+            el("span", { "class": "letter", text: f.letter }), f.label
+          ]),
+          el("div", { "class": "hint", text: f.hint }),
+          ta
+        ]));
+      });
+    }
+
+    // ---- ToDo ----
+    function buildTodos() {
+      var list = document.getElementById("todo-list");
+      list.innerHTML = "";
+      state.todos.forEach(function (t) {
+        var cb = el("input", { type: "checkbox" });
+        cb.checked = !!t.erledigt;
+        cb.addEventListener("change", function () {
+          t.erledigt = cb.checked;
+          li.classList.toggle("done", t.erledigt);
+          save();
+          renderTodoCount();
+        });
+        var del = el("button", {
+          "class": "danger ghost", title: "loeschen", text: "✕",
+          onclick: function () {
+            state.todos = state.todos.filter(function (x) { return x.id !== t.id; });
+            save();
+            buildTodos();
+          }
+        });
+        var li = el("li", { "class": t.erledigt ? "done" : "" }, [
+          cb,
+          el("span", { "class": "txt", text: t.text }),
+          del
+        ]);
+        list.appendChild(li);
+      });
+      renderTodoCount();
+    }
+
+    function renderTodoCount() {
+      var done = state.todos.filter(function (t) { return t.erledigt; }).length;
+      document.getElementById("todo-count").textContent = done + " / " + state.todos.length + " erledigt";
+    }
+
+    function addTodo() {
+      var inp = document.getElementById("todo-input");
+      var text = inp.value.trim();
+      if (!text) return;
+      state.todos.push({ id: "t" + Date.now(), text: text, erledigt: false });
+      inp.value = "";
+      save();
+      buildTodos();
+    }
+
+    // ---- Roadmap ----
+    function renderRoadmap() {
+      var box = document.getElementById("roadmap");
+      box.innerHTML = "";
+      GRUPPEN.forEach(function (g, i) {
+        var cards = state.cards.filter(function (c) { return c.gruppe === g.key; });
+        if (!cards.length) return;
+        var done = cards.filter(function (c) { return c.status === "erledigt"; }).length;
+        var pct = Math.round((done / cards.length) * 100);
+
+        var li = cards.map(function (c) {
+          return el("li", { "class": c.status === "erledigt" ? "erledigt" : "" },
+            [basisName(c.datei) + " — " + (c.thema || "")]);
+        });
+
+        var phase = el("div", { "class": "phase" }, [
+          el("h3", null, [
+            el("span", { "class": "num", text: "Phase " + (i + 1) }),
+            g.name,
+            el("span", { "class": "badge diff", text: done + "/" + cards.length })
+          ]),
+          el("div", { "class": "mini-bar" }, [el("span")]),
+          el("ul", null, li)
+        ]);
+        phase.style.setProperty("--grp", g.farbe);
+        phase.querySelector(".mini-bar > span").style.width = pct + "%";
+        box.appendChild(phase);
+      });
+    }
+
+    // ---- Modal ----
+    var editId = null; // null => neue Karte
+
+    function fillGroupSelect(sel, selected) {
+      sel.innerHTML = "";
+      GRUPPEN.forEach(function (g) {
+        var o = el("option", { value: g.key, text: g.name });
+        if (g.key === selected) o.selected = true;
+        sel.appendChild(o);
+      });
+    }
+
+    function openModal(id) {
+      editId = id;
+      var c = id ? findCard(id) : null;
+      document.getElementById("modal-title").textContent = c ? "Karte bearbeiten" : "Neue Karte";
+      document.getElementById("m-datei").value = c ? c.datei : "";
+      document.getElementById("m-thema").value = c ? (c.thema || "") : "";
+      document.getElementById("m-lang").value = c ? c.sprache : "C";
+      fillGroupSelect(document.getElementById("m-group"), c ? c.gruppe : "grundlagen");
+      document.getElementById("m-diff").value = c ? c.schwierigkeit : "Anfänger";
+      document.getElementById("m-test").checked = c ? !!c.hatTest : false;
+      document.getElementById("m-notiz").value = c ? (c.notiz || "") : "";
+      document.getElementById("m-cmd").textContent = c ? makeBefehl(c) : "—";
+      document.getElementById("m-delete").style.visibility = c ? "visible" : "hidden";
+      document.getElementById("overlay").classList.add("open");
+    }
+
+    function closeModal() {
+      document.getElementById("overlay").classList.remove("open");
+      editId = null;
+    }
+
+    function saveModal() {
+      var datei = document.getElementById("m-datei").value.trim();
+      if (!datei) { alert("Bitte einen Datei-/Titelnamen angeben."); return; }
+      var data = {
+        datei: datei,
+        thema: document.getElementById("m-thema").value.trim(),
+        sprache: document.getElementById("m-lang").value,
+        gruppe: document.getElementById("m-group").value,
+        schwierigkeit: document.getElementById("m-diff").value,
+        hatTest: document.getElementById("m-test").checked,
+        notiz: document.getElementById("m-notiz").value
+      };
+      if (editId) {
+        var c = findCard(editId);
+        for (var key in data) c[key] = data[key];
+      } else {
+        data.id = "card-" + Date.now();
+        data.status = "backlog";
+        state.cards.push(data);
+      }
+      save();
+      closeModal();
+      render();
+    }
+
+    function deleteCard() {
+      if (!editId) return;
+      if (!confirm("Diese Karte wirklich loeschen?")) return;
+      state.cards = state.cards.filter(function (c) { return c.id !== editId; });
+      save();
+      closeModal();
+      render();
+    }
+
+    // ---- Tabs ----
+    function showTab(name) {
+      var tabs = document.querySelectorAll("nav.tabs button");
+      for (var i = 0; i < tabs.length; i++) {
+        tabs[i].setAttribute("aria-selected", tabs[i].getAttribute("data-tab") === name ? "true" : "false");
+      }
+      var panels = document.querySelectorAll(".panel");
+      for (var j = 0; j < panels.length; j++) {
+        panels[j].classList.toggle("active", panels[j].id === "panel-" + name);
+      }
+    }
+
+    // ---- Utilities ----
+    function debounce(fn, ms) {
+      var timer = null;
+      return function () {
+        var ctx = this, args = arguments;
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(function () { fn.apply(ctx, args); }, ms);
+      };
+    }
+
+    function resetAll() {
+      if (!confirm("Alle Eingaben verwerfen und auf den vorbefuellten Stand zuruecksetzen?")) return;
+      state = makeSeed();
+      save();
+      buildSmart();
+      buildTodos();
+      render();
+    }
+
+    // ---- Init / Events ----
+    function init() {
+      // Filter-Gruppenliste fuellen
+      var fg = document.getElementById("f-group");
+      GRUPPEN.forEach(function (g) {
+        fg.appendChild(el("option", { value: g.key, text: g.name }));
+      });
+
+      document.querySelectorAll("nav.tabs button").forEach(function (b) {
+        b.addEventListener("click", function () { showTab(b.getAttribute("data-tab")); });
+      });
+
+      document.getElementById("f-lang").addEventListener("change", renderBoard);
+      document.getElementById("f-group").addEventListener("change", renderBoard);
+      document.getElementById("btn-add").addEventListener("click", function () { openModal(null); });
+
+      document.getElementById("btn-pdf").addEventListener("click", function () { window.print(); });
+      document.getElementById("btn-reset").addEventListener("click", resetAll);
+
+      document.getElementById("todo-add-btn").addEventListener("click", addTodo);
+      document.getElementById("todo-input").addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter") addTodo();
+      });
+
+      document.getElementById("m-save").addEventListener("click", saveModal);
+      document.getElementById("m-cancel").addEventListener("click", closeModal);
+      document.getElementById("m-delete").addEventListener("click", deleteCard);
+      document.getElementById("overlay").addEventListener("click", function (ev) {
+        if (ev.target === document.getElementById("overlay")) closeModal();
+      });
+      document.addEventListener("keydown", function (ev) {
+        if (ev.key === "Escape") closeModal();
+      });
+
+      buildSmart();
+      buildTodos();
+      render();
+    }
+
+    init();
+  </script>
+</body>
+</html>
