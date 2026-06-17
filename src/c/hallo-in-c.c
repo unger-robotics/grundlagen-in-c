@@ -1,6 +1,6 @@
-// ju -- 6-Jan-19  -- hallo-in-c.c 
+// ju -- 6-Jan-19  -- hallo-in-c.c
 #include <stdio.h>
-int main(void){
-	printf("Hallo Welt!\n");
-	return 0;
+int main(void) {
+  printf("Hallo Welt!\n");
+  return 0;
 }

@@ -97,17 +97,23 @@ C wird mit `-std=c23`, C++ mit `-std=c++23` übersetzt (im `Makefile` anpassbar)
 ## CI / Automatische Prüfungen
 
 Bei jedem Push und Pull Request auf `main` läuft der Workflow
-[`.github/workflows/build.yml`](.github/workflows/build.yml) auf einem **macOS**-Runner
-(Apple Clang). Den Status zeigt das Badge oben. Geprüft werden zwei Dinge:
+[`.github/workflows/build.yml`](.github/workflows/build.yml). Den Status zeigt das Badge
+oben. Geprüft werden drei Dinge:
 
-1. **Warnungsfreier Build** – alle Beispiele werden mit `-Werror` übersetzt; jede
-   Compiler-Warnung (und natürlich jeder Syntax-/Typfehler) lässt die CI fehlschlagen.
-2. **Ausführung** – jedes gebaute Programm wird gestartet; ein Exit-Code ≠ 0 (Absturz
+1. **Stil (clang-format)** – auf einem Linux-Runner prüft `clang-format --dry-run --Werror`
+   alle Quellen gegen [`.clang-format`](.clang-format) (2 Leerzeichen, keine Tabs, …); jede
+   Formatierungsabweichung lässt die CI fehlschlagen. Es wird **nichts** automatisch geändert.
+2. **Warnungsfreier Build** – auf einem **macOS**-Runner (Apple Clang) werden alle Beispiele
+   mit `-Werror` übersetzt; jede Compiler-Warnung (und natürlich jeder Syntax-/Typfehler)
+   lässt die CI fehlschlagen.
+3. **Ausführung** – jedes gebaute Programm wird gestartet; ein Exit-Code ≠ 0 (Absturz
    oder fehlgeschlagener Selbsttest, z. B. `class-person-v02`) lässt die CI fehlschlagen.
 
 Lokal identisch nachstellbar:
 
 ```sh
+clang-format --dry-run --Werror $(find src include -name '*.c' -o -name '*.cpp' -o -name '*.h')  # Stil prüfen
+clang-format -i $(find src include -name '*.c' -o -name '*.cpp' -o -name '*.h')                  # … oder gleich formatieren
 make EXTRA_WARN=-Werror                                          # warnungsfrei bauen (wie in der CI)
 for p in bin/*; do [ -f "$p" ] && [ -x "$p" ] && "$p" </dev/null; done   # alle ausführen
 ```

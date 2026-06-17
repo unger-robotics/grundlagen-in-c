@@ -1,6 +1,8 @@
 # ju -- 17-Jun-26 -- build.yml
-# CI unter macOS (Apple Clang): baut alle C-/C++-Beispiele warnungsfrei (-Werror)
-# und fuehrt sie aus (Selbsttests + Absturz-Check) bei jedem Push/PR.
+# CI bei jedem Push/PR auf main, zwei Jobs:
+#   - format: clang-format-Stilcheck (--dry-run --Werror) auf einem Linux-Runner
+#   - build:  alle C-/C++-Beispiele warnungsfrei bauen (-Werror) und ausfuehren
+#             (Selbsttests + Absturz-Check) unter macOS (Apple Clang).
 name: build
 
 on:
@@ -11,6 +13,25 @@ on:
   workflow_dispatch:
 
 jobs:
+  format:
+    name: clang-format-Stilcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # clang-format aus PyPI, auf dieselbe Hauptversion (22) gepinnt wie lokal
+      # (Homebrew llvm) -- gleiche Version = identische Formatierung, kein CI-Drift.
+      - name: clang-format 22 installieren
+        run: pipx install "clang-format==22.*"
+
+      # .clang-format im Repo legt den Stil fest (2 Leerzeichen, kein Tab, ...).
+      # --dry-run --Werror aendert nichts, faellt aber bei jeder Abweichung aus.
+      - name: Stil pruefen (--dry-run --Werror)
+        run: |
+          clang-format --version
+          find src include \( -name '*.c' -o -name '*.cpp' -o -name '*.h' \) \
+            -print0 | xargs -0 clang-format --dry-run --Werror
+
   build:
     name: build + run (macOS)
     runs-on: macos-latest

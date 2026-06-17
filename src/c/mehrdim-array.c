@@ -2,14 +2,14 @@
 /* Mehrdimensionale Arrays: 2D-Matrix anlegen und verarbeiten */
 #include <stdio.h>
 
-#define ZEILEN  3
+#define ZEILEN 3
 #define SPALTEN 4
 
 int main(void) {
   int matrix[ZEILEN][SPALTEN] = {
-    {  1,  2,  3,  4 },
-    {  5,  6,  7,  8 },
-    {  9, 10, 11, 12 },
+      {1, 2, 3, 4},
+      {5, 6, 7, 8},
+      {9, 10, 11, 12},
   };
 
   // Ausgabe als Tabelle
@@ -25,7 +25,8 @@ int main(void) {
   printf("\nZeilensummen:\n");
   for (int z = 0; z < ZEILEN; z++) {
     int summe = 0;
-    for (int s = 0; s < SPALTEN; s++) summe += matrix[z][s];
+    for (int s = 0; s < SPALTEN; s++)
+      summe += matrix[z][s];
     printf("Zeile %d: %d\n", z, summe);
   }
   return 0;

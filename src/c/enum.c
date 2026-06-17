@@ -11,9 +11,12 @@ enum Wochentag { MO = 1, DI, MI, DO, FR, SA, SO };
 // Ampelzustand als Text
 const char *ampelText(enum Ampel a) {
   switch (a) {
-    case ROT:   return "rot";
-    case GELB:  return "gelb";
-    case GRUEN: return "gruen";
+  case ROT:
+    return "rot";
+  case GELB:
+    return "gelb";
+  case GRUEN:
+    return "gruen";
   }
   return "unbekannt";
 }

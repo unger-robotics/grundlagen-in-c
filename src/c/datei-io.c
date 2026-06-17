@@ -12,7 +12,7 @@ int main(void) {
     return 1;
   }
   for (int i = 1; i <= 5; i++) {
-    fprintf(aus, "%d %d\n", i, i * i);   // Zahl und ihr Quadrat
+    fprintf(aus, "%d %d\n", i, i * i); // Zahl und ihr Quadrat
   }
   fclose(aus);
   printf("'%s' geschrieben.\n", dateiname);

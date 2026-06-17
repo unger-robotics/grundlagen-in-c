@@ -12,12 +12,12 @@
 using namespace std;
 
 int main() {
-  vector<int> zahlen = {42, 7, 19};   // mit drei Werten starten
+  vector<int> zahlen = {42, 7, 19}; // mit drei Werten starten
 
-  zahlen.push_back(3);                // hinten anfuegen -> der vector waechst
+  zahlen.push_back(3); // hinten anfuegen -> der vector waechst
   zahlen.push_back(25);
 
-  cout << "Groesse: " << zahlen.size() << "\n";   // 5
+  cout << "Groesse: " << zahlen.size() << "\n"; // 5
 
   // --- sortieren (aufsteigend) ---
   sort(zahlen.begin(), zahlen.end());
@@ -25,7 +25,7 @@ int main() {
   // --- range-based for: ueber alle Elemente iterieren ---
   cout << "sortiert:";
   for (int z : zahlen) {
-    cout << " " << z;                 // Ausgabe: 3 7 19 25 42
+    cout << " " << z; // Ausgabe: 3 7 19 25 42
   }
   cout << "\n";
 

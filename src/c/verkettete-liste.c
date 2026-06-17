@@ -5,14 +5,15 @@
 
 // Ein Knoten kennt seinen Wert und den naechsten Knoten
 typedef struct Knoten {
-  int            wert;
+  int wert;
   struct Knoten *next;
 } Knoten;
 
 // Neuen Knoten am Anfang einfuegen, gibt den neuen Listenkopf zurueck
 Knoten *einfuegenVorne(Knoten *kopf, int wert) {
   Knoten *neu = malloc(sizeof(Knoten));
-  if (neu == NULL) return kopf;
+  if (neu == NULL)
+    return kopf;
   neu->wert = wert;
   neu->next = kopf;
   return neu;
@@ -37,7 +38,7 @@ void freigeben(Knoten *kopf) {
 int main(void) {
   Knoten *liste = NULL;
   for (int i = 1; i <= 5; i++) {
-    liste = einfuegenVorne(liste, i);   // 5,4,3,2,1 (jeweils vorne)
+    liste = einfuegenVorne(liste, i); // 5,4,3,2,1 (jeweils vorne)
   }
   printf("Liste: ");
   ausgeben(liste);

@@ -13,17 +13,17 @@ int main(void) {
 
   // --- strlen: Laenge OHNE das '\0' ---
   // "Hallo Welt" = 10 Zeichen; das Array selbst belegt 11 Bytes (mit '\0').
-  printf("strlen(\"%s\") = %zu\n", text, strlen(text));  // 10
+  printf("strlen(\"%s\") = %zu\n", text, strlen(text)); // 10
 
   // --- strcmp: vergleicht zeichenweise, 0 = gleich ---
   // Rueckgabe ist < 0 / 0 / > 0 (nicht nur 0/1!). Beliebter Anfaengerfehler:
   // if (strcmp(a,b)) ist WAHR, wenn die Strings UNGLEICH sind.
-  printf("strcmp(\"abc\",\"abc\") = %d\n", strcmp("abc", "abc"));  // 0
-  printf("strcmp(\"abc\",\"abd\") = %d\n", strcmp("abc", "abd"));  // negativ
+  printf("strcmp(\"abc\",\"abc\") = %d\n", strcmp("abc", "abc")); // 0
+  printf("strcmp(\"abc\",\"abd\") = %d\n", strcmp("abc", "abd")); // negativ
 
   // --- strcpy / strncpy: kopieren ---
   char ziel[20];
-  strcpy(ziel, "kopiert");          // ziel muss gross genug sein!
+  strcpy(ziel, "kopiert"); // ziel muss gross genug sein!
   printf("strcpy  -> %s\n", ziel);
   // strncpy begrenzt auf n Zeichen und ist damit sicherer gegen Ueberlauf,
   // garantiert aber NICHT das '\0' -- das setzen wir hier von Hand.
@@ -41,7 +41,7 @@ int main(void) {
   char *p = strchr(text, 'W');
   if (p != NULL) {
     // Zeiger-Differenz = Position im String (0-basiert): 'W' steht an Index 6
-    printf("strchr  -> 'W' an Index %ld\n", (long)(p - text));  // 6
+    printf("strchr  -> 'W' an Index %ld\n", (long)(p - text)); // 6
   }
   return 0;
 }

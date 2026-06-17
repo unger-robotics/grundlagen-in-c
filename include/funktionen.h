@@ -1,17 +1,17 @@
-// ju -- 5-Jan-19 -- funktionen.h 
-/* Deklaration eig. Bibliothek	*/
+// ju -- 5-Jan-19 -- funktionen.h
+/* Deklaration eig. Bibliothek */
 
 #ifndef BIB_H // Include-Guard
 #define BIB_H
 
 #ifdef __cplusplus
-extern "C" {          // C-Linkage, damit auch aus C++ nutzbar
+extern "C" { // C-Linkage, damit auch aus C++ nutzbar
 #endif
 
 // Fakultaet
-int fac( int i );
+int fac(int i);
 // Quersumme in beliebigem Zahlensystem
-int quersumme(int z, int b); 
+int quersumme(int z, int b);
 // ganze Zahlen potenzieren
 int quadriere(int z);
 // dritte Potenz
@@ -24,6 +24,3 @@ unsigned long potenziere(int x, int y);
 #endif
 
 #endif
-
-
-

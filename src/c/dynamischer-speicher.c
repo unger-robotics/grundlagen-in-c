@@ -12,10 +12,12 @@ int main(void) {
     fprintf(stderr, "Speicher konnte nicht reserviert werden\n");
     return 1;
   }
-  for (int i = 0; i < n; i++) feld[i] = (i + 1) * (i + 1);  // Quadratzahlen
+  for (int i = 0; i < n; i++)
+    feld[i] = (i + 1) * (i + 1); // Quadratzahlen
 
   printf("Feld (%d Elemente): ", n);
-  for (int i = 0; i < n; i++) printf("%d ", feld[i]);
+  for (int i = 0; i < n; i++)
+    printf("%d ", feld[i]);
   printf("\n");
 
   // Feld vergroessern -- realloc behaelt die bisherigen Werte
@@ -27,12 +29,14 @@ int main(void) {
     return 1;
   }
   feld = groesser;
-  for (int i = 5; i < n; i++) feld[i] = (i + 1) * (i + 1);
+  for (int i = 5; i < n; i++)
+    feld[i] = (i + 1) * (i + 1);
 
   printf("Feld (%d Elemente): ", n);
-  for (int i = 0; i < n; i++) printf("%d ", feld[i]);
+  for (int i = 0; i < n; i++)
+    printf("%d ", feld[i]);
   printf("\n");
 
-  free(feld);   // angeforderten Speicher immer wieder freigeben!
+  free(feld); // angeforderten Speicher immer wieder freigeben!
   return 0;
 }

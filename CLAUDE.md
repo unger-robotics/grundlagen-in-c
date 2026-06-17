@@ -42,6 +42,7 @@ Einige Beispiele schreiben Dateien ins aktuelle Verzeichnis: `class-person-v02.c
 ## Stil-Konventionen (durchgängig im Repo)
 
 - Kopfzeile pro Datei: `// ju -- <Datum> -- <dateiname>`.
-- Einrückung 2 Leerzeichen (einige ältere Bestandsdateien nutzen Tabs — beim Bearbeiten den Stil der jeweiligen Datei beibehalten), Codierung UTF-8, Zeilenende LF.
+- Einrückung 2 Leerzeichen, **niemals Tabs**; Codierung UTF-8, Zeilenende LF.
+- Formatierung ist per `.clang-format` festgelegt (LLVM-Basis, `IndentWidth: 2`, `UseTab: Never`, `ColumnLimit: 100`, `ReflowComments: false`, `SortIncludes: false`). Vor dem Commit formatieren: `clang-format -i <datei>` (oder alle: `find src include \( -name '*.c' -o -name '*.cpp' -o -name '*.h' \) -print0 | xargs -0 clang-format -i`). Die CI prüft den Stil mit `clang-format --dry-run --Werror` (clang-format 22) — Abweichungen lassen sie fehlschlagen. Kommentare werden bewusst nicht umgebrochen, daher dort auf trailing whitespace selbst achten.
 - Kommentare und Bezeichner auf Deutsch. Umlaute im **Code/Kommentaren** sind ok; in neuen Beispielen werden sie der Portabilität halber teils als `ae/oe/ue` geschrieben — am Stil der umgebenden Datei orientieren. Umlaute niemals in bestehenden Texten durch ASCII ersetzen.
 - Build muss warnungsfrei bleiben. Das Makefile nutzt `-Wall -Wextra -Wno-missing-field-initializers` (letzteres erlaubt bewusst partielle Struct-Initialisierung, z. B. in `struct-led.c`).

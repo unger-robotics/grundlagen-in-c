@@ -1,0 +1,15 @@
+# Stil-Konvention fuer "Grundlagen in C"
+# Basis: LLVM, angepasst an die Repo-Konventionen:
+#   - 2 Leerzeichen Einrueckung, niemals Tabs
+#   - Zeilenlimit 100 (haelt den Bestand nahezu unveraendert)
+#   - Kommentare werden nicht umgebrochen (didaktische Kommentare bleiben intakt)
+#   - Include-Reihenfolge wird nicht umsortiert
+---
+BasedOnStyle: LLVM
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+ColumnLimit: 100
+ReflowComments: false
+SortIncludes: false
+InsertNewlineAtEOF: true

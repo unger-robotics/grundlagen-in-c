@@ -12,17 +12,17 @@ int main(void) {
   // --- for: zaehlt 1..5 ---
   printf("for:      ");
   for (int i = 1; i <= 5; i++) {
-    printf("%d ", i);            // Ausgabe: 1 2 3 4 5
+    printf("%d ", i); // Ausgabe: 1 2 3 4 5
   }
   printf("\n");
 
   // --- while (kopfgesteuert): gleiche Ausgabe, andere Schreibweise ---
   printf("while:    ");
-  int i = 1;                     // Zaehler VOR der Schleife initialisieren
+  int i = 1; // Zaehler VOR der Schleife initialisieren
   while (i <= 5) {
     printf("%d ", i);
-    i++;                         // Zaehler MUSS im Rumpf weitergezaehlt werden,
-  }                              // sonst laeuft die Schleife endlos.
+    i++; // Zaehler MUSS im Rumpf weitergezaehlt werden,
+  } // sonst laeuft die Schleife endlos.
   printf("\n");
 
   // --- do-while (fussgesteuert): laeuft mind. einmal ---
@@ -31,7 +31,7 @@ int main(void) {
   printf("do-while: ");
   int k = 99;
   do {
-    printf("%d ", k);            // Ausgabe: 99
+    printf("%d ", k); // Ausgabe: 99
   } while (k <= 5);
   printf("\n");
 
@@ -39,9 +39,11 @@ int main(void) {
   // continue ueberspringt gerade Zahlen, break stoppt komplett bei 7.
   printf("break/continue: ");
   for (int n = 1; n <= 10; n++) {
-    if (n % 2 == 0) continue;    // gerade -> Rest des Rumpfes ueberspringen
-    if (n == 7) break;           // bei 7 die Schleife ganz verlassen
-    printf("%d ", n);            // Ausgabe: 1 3 5
+    if (n % 2 == 0)
+      continue; // gerade -> Rest des Rumpfes ueberspringen
+    if (n == 7)
+      break;          // bei 7 die Schleife ganz verlassen
+    printf("%d ", n); // Ausgabe: 1 3 5
   }
   printf("\n");
   return 0;
