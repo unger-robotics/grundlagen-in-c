@@ -44,4 +44,4 @@ Einige Beispiele schreiben Dateien ins aktuelle Verzeichnis: `class-person-v02.c
 - Kopfzeile pro Datei: `// ju -- <Datum> -- <dateiname>`.
 - Einrückung 2 Leerzeichen (einige ältere Bestandsdateien nutzen Tabs — beim Bearbeiten den Stil der jeweiligen Datei beibehalten), Codierung UTF-8, Zeilenende LF.
 - Kommentare und Bezeichner auf Deutsch. Umlaute im **Code/Kommentaren** sind ok; in neuen Beispielen werden sie der Portabilität halber teils als `ae/oe/ue` geschrieben — am Stil der umgebenden Datei orientieren. Umlaute niemals in bestehenden Texten durch ASCII ersetzen.
-- Build muss mit `-Wall -Wextra` warnungsfrei bleiben.
+- Build muss warnungsfrei bleiben. Das Makefile nutzt `-Wall -Wextra -Wno-missing-field-initializers` (letzteres erlaubt bewusst partielle Struct-Initialisierung, z. B. in `struct-led.c`).
