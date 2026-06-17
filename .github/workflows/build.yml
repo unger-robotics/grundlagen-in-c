@@ -14,7 +14,7 @@ jobs:
     name: make (macOS)
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Toolchain anzeigen
         run: cc --version
       - name: Alle Beispiele bauen
