@@ -31,6 +31,7 @@ keine Liste gepflegt werden. Binärdateien landen in `bin/`.
 ```sh
 make                 # alle Beispiele bauen
 make run-array       # ein Beispiel bauen und sofort ausführen
+make debug-array     # Beispiel unter lldb ausführen (Backtrace bei Absturz)
 ./bin/zeiger         # gebautes Programm direkt starten
 make clean           # bin/ wieder entfernen
 ```
@@ -54,7 +55,9 @@ Die kleine Bibliothek `funktionen` (Fakultät, Quersumme, Potenzen) wird in jede
 ## Themenübersicht
 
 Jedes Programm ist eigenständig und behandelt genau ein Thema. Mit
-`make run-<name>` (z. B. `make run-zeiger`) lässt sich ein Beispiel direkt starten.
+`make run-<name>` (z. B. `make run-zeiger`) lässt sich ein Beispiel direkt starten;
+`make debug-<name>` führt es unter lldb aus und gibt bei einem Absturz automatisch
+einen Backtrace mit Quellzeile aus.
 
 ### C (`src/c/`)
 

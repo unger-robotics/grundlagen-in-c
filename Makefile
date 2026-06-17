@@ -4,6 +4,7 @@
 # Verwendung:
 #   make              alle Beispiele bauen (Ausgabe nach bin/)
 #   make run-array    Beispiel bauen und ausfuehren (z. B. bin/array)
+#   make debug-array  Beispiel unter lldb ausfuehren (Auto-Backtrace bei Absturz)
 #   make clean        bin/ entfernen
 #
 # Quellen werden automatisch erkannt (src/c/*.c, src/cpp/*.cpp) --
@@ -56,6 +57,14 @@ bin/%: src/cpp/%.cpp | bin
 # Komfort: bauen und ausfuehren, z. B. `make run-zeiger`
 run-%: bin/%
 	./$<
+
+# Komfort: unter lldb ausfuehren; bei Absturz automatisch Backtrace,
+# z. B. `make debug-zeiger`. --batch laeuft ohne manuelle Eingabe; bei sauberem
+# Lauf wie run-%, sonst gibt -k 'bt all' (nur im Crash-Fall) den Backtrace aus.
+# Nutzt die vorhandenen -g -O0-Binaries. Hinweis: lldb liefert auch nach einem
+# Absturz Exit 0 -- ein Crash schlaegt make also nicht fehl (anders als bei test).
+debug-%: bin/%
+	lldb --batch -o run -k 'bt all' -k quit ./$<
 
 # Selbsttests bauen und ausfuehren (Exit != 0 = Test fehlgeschlagen).
 # Fuer echte Speicherpruefung: make clean && make SANITIZE=address,undefined test

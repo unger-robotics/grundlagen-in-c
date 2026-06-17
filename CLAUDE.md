@@ -21,6 +21,7 @@ bin/                   # Build-Ausgabe (erzeugt, gitignored)
 ```sh
 make                 # baut alle Beispiele nach bin/
 make run-array       # ein Beispiel bauen und ausführen (Muster: run-<name>)
+make debug-array     # Beispiel unter lldb ausführen, Auto-Backtrace bei Absturz
 ./bin/zeiger         # gebautes Programm direkt starten
 make test            # Selbsttests bauen + ausführen (Exit != 0 = fehlgeschlagen)
 make clean           # bin/ entfernen
