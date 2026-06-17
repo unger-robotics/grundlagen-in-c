@@ -7,8 +7,8 @@ bin/
 *.dSYM/
 
 # Laufzeit-Ausgaben der Beispiele
-personen.txt      # class-person-v02.cpp
-zahlen.txt        # datei-io.c
+personen.txt
+zahlen.txt
 
 # macOS
 .DS_Store
