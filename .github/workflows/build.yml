@@ -1,0 +1,21 @@
+# ju -- 17-Jun-26 -- build.yml
+# CI: baut alle C-/C++-Beispiele unter macOS (Apple Clang) bei jedem Push/PR.
+name: build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: make (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain anzeigen
+        run: cc --version
+      - name: Alle Beispiele bauen
+        run: make
