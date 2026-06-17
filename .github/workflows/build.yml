@@ -1,5 +1,6 @@
 # ju -- 17-Jun-26 -- build.yml
-# CI: baut alle C-/C++-Beispiele unter macOS (Apple Clang) bei jedem Push/PR.
+# CI unter macOS (Apple Clang): baut alle C-/C++-Beispiele warnungsfrei (-Werror)
+# und fuehrt sie aus (Selbsttests + Absturz-Check) bei jedem Push/PR.
 name: build
 
 on:
@@ -11,11 +12,26 @@ on:
 
 jobs:
   build:
-    name: make (macOS)
+    name: build + run (macOS)
     runs-on: macos-latest
+    timeout-minutes: 10          # Backstop, falls je ein Programm haengt
     steps:
       - uses: actions/checkout@v5
+
       - name: Toolchain anzeigen
         run: cc --version
-      - name: Alle Beispiele bauen
-        run: make
+
+      # Stufe 2: Warnungen sind Fehler -> faengt drohende Bugs schon beim Bauen ab
+      - name: Alle Beispiele bauen (warnungsfrei, -Werror)
+        run: make EXTRA_WARN=-Werror
+
+      # Stufe 1: jedes Programm ausfuehren; Exit != 0 (Absturz oder fehl-
+      # geschlagener Selbsttest, z. B. class-person-v02) laesst den Lauf fehlschlagen.
+      # stdin von /dev/null -> kein Blockieren, .dSYM-Verzeichnisse werden uebersprungen.
+      - name: Beispiele ausfuehren (Selbsttests + Absturz-Check)
+        run: |
+          for prog in bin/*; do
+            [ -f "$prog" ] && [ -x "$prog" ] || continue
+            echo "== $prog =="
+            "$prog" </dev/null
+          done

@@ -11,7 +11,8 @@
 
 CC       ?= cc          # Apple Clang (gcc ist hierauf nur ein Alias)
 CXX      ?= c++         # Apple Clang++ (g++ ist hierauf nur ein Alias)
-WARN     := -Wall -Wextra -Wno-missing-field-initializers
+EXTRA_WARN ?=          # zusaetzliche Warn-Flags, z. B. in der CI: make EXTRA_WARN=-Werror
+WARN     := -Wall -Wextra -Wno-missing-field-initializers $(EXTRA_WARN)
 CFLAGS   := -std=c23   $(WARN) -g -O0
 CXXFLAGS := -std=c++23 $(WARN) -g -O0
 CPPFLAGS := -Iinclude
