@@ -56,3 +56,9 @@ jobs:
             echo "== $prog =="
             "$prog" </dev/null
           done
+
+      # Stufe 3: Selbsttests unter AddressSanitizer + UBSan neu bauen und laufen
+      # lassen -> faengt Speicherlecks / Use-after-free / undefiniertes Verhalten,
+      # die ein reiner Wertvergleich nicht sieht.
+      - name: Selbsttests unter AddressSanitizer
+        run: make clean && make SANITIZE=address,undefined test

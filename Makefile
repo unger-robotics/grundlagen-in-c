@@ -18,6 +18,16 @@ CXXFLAGS := -std=c++23 $(WARN) -g -O0
 CPPFLAGS := -Iinclude
 LIB      := src/funktionen.c
 
+# Optionaler Sanitizer, standardmaessig aus.
+#   make SANITIZE=address,undefined   -> Speicher-/UB-Checks (z. B. fuer make test)
+# -fsanitize in den (C|CXX)FLAGS wirkt bei diesen Ein-Schritt-Builds zugleich beim Linken.
+SANITIZE ?=
+ifneq ($(SANITIZE),)
+SAN      := -fsanitize=$(SANITIZE) -fno-omit-frame-pointer
+CFLAGS   += $(SAN)
+CXXFLAGS += $(SAN)
+endif
+
 # macOS-SDK ermitteln und mitgeben -- robust, falls CC/CXX das Sysroot
 # nicht selbst setzen (z. B. wenn CC auf das rohe clang-Binary zeigt).
 SDKROOT  := $(shell xcrun --show-sdk-path 2>/dev/null)
@@ -47,7 +57,14 @@ bin/%: src/cpp/%.cpp | bin
 run-%: bin/%
 	./$<
 
+# Selbsttests bauen und ausfuehren (Exit != 0 = Test fehlgeschlagen).
+# Fuer echte Speicherpruefung: make clean && make SANITIZE=address,undefined test
+TESTBINS := bin/test-bibliothek bin/test-speicher
+test: $(TESTBINS)
+	@for t in $(TESTBINS); do echo "== $$t =="; "./$$t" || exit 1; done
+	@echo "Alle Selbsttests bestanden."
+
 clean:
 	rm -rf bin
 
-.PHONY: all clean
+.PHONY: all clean test

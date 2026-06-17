@@ -22,14 +22,21 @@ bin/                   # Build-Ausgabe (erzeugt, gitignored)
 make                 # baut alle Beispiele nach bin/
 make run-array       # ein Beispiel bauen und ausführen (Muster: run-<name>)
 ./bin/zeiger         # gebautes Programm direkt starten
+make test            # Selbsttests bauen + ausführen (Exit != 0 = fehlgeschlagen)
 make clean           # bin/ entfernen
+```
+
+```sh
+make EXTRA_WARN=-Werror              # warnungsfrei bauen wie in der CI (Warnung = Fehler)
+make clean && make SANITIZE=address,undefined test   # Selbsttests unter ASan/UBSan
 ```
 
 - **Quellen werden automatisch erkannt** (`$(wildcard src/c/*.c)` / `src/cpp/*.cpp`) — es gibt **keine** von Hand zu pflegende `TARGETS`-Liste mehr. Neue Datei in `src/c/` oder `src/cpp/` ablegen genügt; der Binärname ist der Dateiname ohne Endung.
 - C: `cc -std=c23`, C++: `c++ -std=c++23` (`cc`/`c++` sind auf macOS Apple Clang; per `CC`/`CXX` überschreibbar).
 - Das Makefile ermittelt das macOS-SDK via `xcrun --show-sdk-path` und gibt es als `-isysroot` mit — nötig, falls `CC`/`CXX` auf das rohe `clang`-Binary zeigen (findet sonst `stdio.h` nicht).
 - **Nur C-Programme** linken `src/funktionen.c` mit; C++-Programme sind eigenständig.
-- Es gibt **kein Testframework**. "Tests" sind manuell: `src/c/test-bibliothek.c` ruft Bibliotheksfunktionen auf, und manche Programme prüfen sich selbst (z. B. `src/cpp/class-person-v02.cpp` vergleicht die Ausgabe mit einem Erwartungs-String und gibt bei Abweichung `return 1`, sonst `ok` + Exit 0). Ein Programm "testen" heißt: bauen, ausführen, Exit-Code/Ausgabe prüfen.
+- Es gibt **kein Testframework**, aber einen einfachen `make test`-Lauf. Selbsttests sind `src/c/test-*.c` (aktuell `test-bibliothek.c` = Bibliothekslogik, `test-speicher.c` = malloc/realloc/free + Liste + Puffer, sinnvoll unter `SANITIZE`). Konvention pro Testdatei: ein `static void pruefe(name, erwartet, erhalten)`-Helfer, der Fehler zählt; `main` gibt am Ende `return fehler != 0` zurück (Exit 0 = alle bestanden). Zusätzlich prüfen sich manche Beispiele selbst (z. B. `src/cpp/class-person-v02.cpp` vergleicht seine Ausgabe mit einem Erwartungs-String, sonst `return 1`).
+- **Achtung:** Die von `make test` ausgeführte Liste `TESTBINS` im `Makefile` wird — anders als die auto-erkannten Quellen — **von Hand** gepflegt. Eine neue `test-*.c` baut zwar automatisch mit, läuft aber erst bei `make test` mit, wenn sie dort eingetragen ist.
 
 ## Die "Bibliothek"
 
