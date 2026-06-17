@@ -1,0 +1,14 @@
+# Build-Ausgabe
+bin/
+*.o
+*.out
+*.exe
+*.x
+*.dSYM/
+
+# Laufzeit-Ausgaben der Beispiele
+personen.txt      # class-person-v02.cpp
+zahlen.txt        # datei-io.c
+
+# macOS
+.DS_Store
